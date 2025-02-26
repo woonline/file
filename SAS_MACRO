@@ -1,0 +1,172 @@
+data exception_logic;
+    length category $20 name $50 pattern $100;
+    input category $ name $ pattern :$100.;
+    datalines;
+EXCLUSION complaint_related complaint|complain|issue|problem
+EXCLUSION investment_property_related investment property|real estate investment|property investment
+EXCLUSION CC_PAYMENT_SETUP_REL credit card payment|payment setup|card setup
+INCLUSION credit_speculation credit speculation|speculative credit|credit risk
+INCLUSION personal_health_related health|medical|wellness
+INCLUSION recommended_investment_product recommend investment|suggest investment|investment product|investment service
+;
+run;
+
+
+
+%macro analyze_comments_dynamic(input_ds=, output_ds=, text_var=comments, logic_ds=exception_logic);
+/* 
+Purpose: Analyzes freeform text comments and applies exception logics for monitoring.
+Parameters:
+    input_ds  - Input dataset containing comments
+    output_ds - Output dataset with indicators and audit trail
+    text_var  - Name of the text variable (default: comments)
+    logic_ds  - Dataset with exception logics (default: exception_logic)
+*/
+
+/* Step 1: Create macro variables from the exception logic dataset */
+proc sql noprint;
+    /* Count the number of exclusion and inclusion rules */
+    select count(*) into :total_exc_rules 
+    from &logic_ds where category = 'EXCLUSION';
+
+    select count(*) into :total_inc_rules 
+    from &logic_ds where category = 'INCLUSION';
+
+    /* Total rules for looping */
+    %let total_rules = %eval(&total_exc_rules + &total_inc_rules);
+
+    /* Create numbered macro variables for category, name, and pattern */
+    select category, name, pattern 
+    into :cat1 - :cat%left(&total_rules),
+         :name1 - :name%left(&total_rules),
+         :pat1 - :pat%left(&total_rules)
+    from &logic_ds;
+quit;
+
+/* Step 2: Print macro variables for validation */
+%put === Macro Variables for Validation ===;
+%put Total exclusion rules: &total_exc_rules;
+%put Total inclusion rules: &total_inc_rules;
+%do i=1 %to &total_rules;
+    %put Rule &i: Category=&&cat&i, Name=&&name&i, Pattern=&&pat&i;
+%end;
+%put =================================;
+
+/* Step 3: Build CASE statements for individual indicators */
+%let case_statements=;
+%do i=1 %to &total_rules;
+    %let case_statements=&case_statements 
+        case 
+            when prxmatch("/&&pat&i/i", &text_var) then 1 
+            else 0 
+        end as &&name&i,;
+%end;
+
+/* Step 4: Create a temporary dataset with indicators */
+proc sql;
+    create table temp_output as
+    select *,
+        /* Original comments */
+        &text_var,
+        /* Individual indicators */
+        &case_statements
+        
+        /* Composite flags */
+        case when 
+            %let exc_cond=;
+            %do i=1 %to &total_rules;
+                %if "&&cat&i" = "EXCLUSION" %then %do;
+                    %let exc_cond=&exc_cond calculated &&name&i or;
+                %end;
+            %end;
+            %let exc_cond=%substr(&exc_cond,1,%length(&exc_cond)-3);
+            &exc_cond
+            then 1 else 0
+        end as exclusion_flag,
+        
+        case when 
+            %let inc_cond=;
+            %do i=1 %to &total_rules;
+                %if "&&cat&i" = "INCLUSION" %then %do;
+                    %let inc_cond=&inc_cond calculated &&name&i or;
+                %end;
+            %end;
+            %let inc_cond=%substr(&inc_cond,1,%length(&inc_cond)-3);
+            &inc_cond
+            then 1 else 0
+        end as inclusion_flag
+    from &input_ds;
+quit;
+
+/* Step 5: Add binary indicators and audit trail to the output dataset */
+data &output_ds;
+    set temp_output;
+    /* Define lengths based on the number of rules */
+    length matched_categories $100 matched_patterns $200 
+           Excl_Ind $&total_exc_rules Incl_Ind $&total_inc_rules;
+    matched_categories = "";
+    matched_patterns = "";
+    Excl_Ind = "";
+    Incl_Ind = "";
+    
+    /* Build binary indicators and audit trail */
+    %do i=1 %to &total_rules;
+        if &&name&i = 1 then do;
+            matched_categories = catx(", ", matched_categories, "&&cat&i");
+            matched_patterns = catx(", ", matched_patterns, "&&pat&i");
+            if "&&cat&i" = "EXCLUSION" then Excl_Ind = cats(Excl_Ind, "1");
+            else if "&&cat&i" = "INCLUSION" then Incl_Ind = cats(Incl_Ind, "1");
+        end;
+        else do;
+            if "&&cat&i" = "EXCLUSION" then Excl_Ind = cats(Excl_Ind, "0");
+            else if "&&cat&i" = "INCLUSION" then Incl_Ind = cats(Incl_Ind, "0");
+        end;
+    %end;
+    /* Clean up extra spaces */
+    matched_categories = compbl(matched_categories);
+    matched_patterns = compbl(matched_patterns);
+run;
+
+/* Step 6: Clean up temporary dataset */
+proc sql;
+    drop table temp_output;
+quit;
+
+/* Step 7: Generate a summary report */
+proc freq data=&output_ds;
+    tables exclusion_flag inclusion_flag 
+        %do i=1 %to &total_rules;
+            &&name&i
+        %end;
+        / nocum nopercent;
+    title "Dynamic Monitoring Strategy Exception Analysis";
+run;
+
+%mend analyze_comments_dynamic;
+
+
+data my_comments;
+    infile datalines;
+    input id comments :$300.;
+    datalines;
+1 I have a complaint about the service.
+2 I'm interested in investment properties.
+3 Can you help me set up my credit card payment?
+4 I'm worried about credit speculation in the market.
+5 I'm dealing with some health issues.
+6 Can you recommend an investment product for me?
+7 Thank you for your help.
+8 I have a complaint about my investment property and need to set up a payment.
+9 I'm concerned about credit speculation and my health, can you suggest an investment product?
+10 The service was excellent, no issues.
+;
+run;
+
+
+
+%analyze_comments_dynamic(
+    input_ds=my_comments,
+    output_ds=comment_analysis,
+    text_var=comments,
+    logic_ds=exception_logic
+);
