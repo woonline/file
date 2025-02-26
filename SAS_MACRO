@@ -147,19 +147,20 @@ run;
 
 /* Example usage with test data */
 data my_comments;
-    infile datalines;
-    input id comments :$300.;
+informat id $20. comments $2500.;
+    infile datalines delimiter='|';
+    input id comments;
     datalines;
-1 I have a complaint about the service.
-2 I'm interested in investment properties.
-3 Can you help me set up my credit card payment?
-4 I'm worried about credit speculation in the market.
-5 I'm dealing with some health issues.
-6 Can you recommend an investment product for me?
-7 Thank you for your help.
-8 I have a complaint about my investment property and need to set up a payment.
-9 I'm concerned about credit speculation and my health, can you suggest an investment product?
-10 The service was excellent, no issues.
+1| I have a complaint about the service.
+2 |I am interested in investment properties.
+3 |Can you help me set up my credit card payment?
+4 |I am worried about credit speculation in the market.
+5 |I am dealing with some health issues.
+6 |Can you recommend an investment product for me?
+7 |Thank you for your help.
+8 |I have a complaint about my investment property and need to set up a payment.
+9 |I am concerned about credit speculation and my health, can you suggest an investment product?
+10 |The service was excellent, no issues.
 ;
 run;
 
