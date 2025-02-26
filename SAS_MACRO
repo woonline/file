@@ -43,15 +43,14 @@ quit;
 %put =================================;
 
 /* Step 3: Build CASE statements for individual indicators */
-%let case_statements = ;
 %do i = 1 %to &total_rules;
     %put DEBUG: Building prxmatch for Rule &i: "(?i)&pat_esc&i";
     
     /* Use %superq to ensure safe handling of escaped pattern */
     %let escaped_pattern = %superq(&&pat_esc&i);
     
-    /* Ensure all single quotes are handled correctly in pattern */
-    %let escaped_pattern = %sysfunc(translate(&escaped_pattern, %str(%'), %str(')));
+    /* Replace single quotes with double single quotes */
+    %let escaped_pattern = %sysfunc(tranwrd(&escaped_pattern, %str(%'), %str(%'%'));
     
     /* Build the case statement dynamically */
     %let case_statements = &case_statements
