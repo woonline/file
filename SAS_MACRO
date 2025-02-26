@@ -21,19 +21,16 @@ proc sql noprint;
     %let total_rules = %eval(&total_exc_rules + &total_inc_rules);
 
     /* Create numbered macro variables for category, name, pattern, and escaped pattern */
-    
     select category,
            name,
            pattern,
-           tranwrd(pattern, "'", "''") as pattern_sql_escaped, /* Escape single quotes for SQL */
-		   cats("'", tranwrd(pattern, "'", "''"), "'") as pattern_escaped /* Escape for PRXMATCH */
-
+           /* Escape single quotes by replacing them with two single quotes */
+           tranwrd(pattern, "'", "''") as pattern_escaped 
     into :cat1 - :cat%left(&total_rules),
          :name1 - :name%left(&total_rules),
          :pat1 - :pat%left(&total_rules),
          :pat_esc1 - :pat_esc%left(&total_rules)
     from &logic_ds;
-
 quit;
 
 /* Step 2: Print macro variables for validation */
@@ -46,14 +43,23 @@ quit;
 %put =================================;
 
 /* Step 3: Build CASE statements for individual indicators */
-%let case_statements=;
-%do i=1 %to &total_rules;
-    %put DEBUG: Building prxmatch for Rule &i: "(?i)&&pat_esc&i";
-    %let case_statements=&case_statements 
-        case 
-            when prxmatch("(?i)&&pat_esc&i", &text_var) then 1 
-            else 0 
-        end as &&name&i,;
+%let case_statements = ;
+%do i = 1 %to &total_rules;
+    %put DEBUG: Building prxmatch for Rule &i: "(?i)&pat_esc&i";
+    
+    /* Use %superq to ensure safe handling of escaped pattern */
+    %let escaped_pattern = %superq(&&pat_esc&i);
+    
+    /* Ensure all single quotes are handled correctly in pattern */
+    %let escaped_pattern = %sysfunc(translate(&escaped_pattern, %str(%'), %str(')));
+    
+    /* Build the case statement dynamically */
+    %let case_statements = &case_statements
+        case
+            when prxmatch("(?i)&escaped_pattern", &text_var) then 1
+            else 0
+        end as &&name&i,
+    ;
 %end;
 
 /* Step 4: Create a temporary dataset with indicators */
@@ -73,6 +79,7 @@ proc sql;
                     %let exc_cond=&exc_cond calculated &&name&i or;
                 %end;
             %end;
+            /* Remove last 'or' */
             %let exc_cond=%substr(&exc_cond,1,%length(&exc_cond)-3);
             &exc_cond
             then 1 else 0
@@ -85,6 +92,7 @@ proc sql;
                     %let inc_cond=&inc_cond calculated &&name&i or;
                 %end;
             %end;
+            /* Remove last 'or' */
             %let inc_cond=%substr(&inc_cond,1,%length(&inc_cond)-3);
             &inc_cond
             then 1 else 0
