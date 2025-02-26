@@ -57,7 +57,7 @@ quit;
 %do i=1 %to &total_rules;
     %let case_statements=&case_statements 
         case 
-            when prxmatch("/&&pat&i/i", &text_var) then 1 
+            when prxmatch("(?i)&&pat&i", &text_var) then 1 
             else 0 
         end as &&name&i,;
 %end;
@@ -92,7 +92,7 @@ proc sql;
                 %end;
             %end;
             %let inc_cond=%substr(&inc_cond,1,%length(&inc_cond)-3);
-            &inc_cond
+            &exc_cond
             then 1 else 0
         end as inclusion_flag
     from &input_ds;
