@@ -1,5 +1,27 @@
+OPTIONS NONOTES NOSTIMER NOSOURCE NOSYNTAXCHECK;
 
+/* Test comments dataset */
+data my_comments;
+    informat id $20. comments $100.;
+    infile datalines delimiter = '|';
+    input id comments;
+    datalines;
+ID001|Customer requested a wire transfer and mentioned advisor's advice.
+ID002|Complaint about service delays.
+;
+run;
 
+/* Exception logic dataset */
+data exception_logic;
+    informat category $20. name $50. pattern $100.;
+    infile datalines delimiter = ',';
+    input category name pattern;
+    datalines;
+EXCLUSION,wire_related,\b(?:wire[-\\s]*(?:transfer|xfr?|tf))\b
+EXCLUSION,advisor_related,\b(advisor(?:'s|s)?|advisory|advisor's|annuities)\b
+INCLUSION,complaint_related,\bcompl[aeiou]+nt[s]?[e]?s?\b
+;
+run;
 
 %macro analyze_comments_dynamic(input_ds=, output_ds=, text_var=comments, logic_ds=exception_logic);
 /* 
@@ -47,14 +69,14 @@ quit;
     %let escaped_pattern = %superq(pat_esc&i);
     %let case_statements = &case_statements
         case
-            when prxmatch("/&escaped_pattern/oi", &text_var) then 1
+            when prxmatch("/&escaped_pattern/i", &text_var) then 1
             else 0
         end as &&name&i
     ;
     %if &i < &total_rules %then %let case_statements = &case_statements,;
 %end;
 
-/* Step 4: Create temporary dataset with indicators (fixed) */
+/* Step 4: Create temporary dataset with indicators (fixed composite flag logic) */
 proc sql;
     create table temp_output as
     select 
@@ -64,27 +86,22 @@ proc sql;
         
         /* Composite flags */
         case when 
-            %do i=1 %to &total_rules;
+            (%do i=1 %to &total_rules;
                 %if "&&cat&i" = "EXCLUSION" %then %do;
-                    (calculated &&name&i) or 
+                    (calculated &&name&i = 1) or 
                 %end;
-            %end;
-            0 then 1 else 0
+            %end; 0) then 1 else 0
         end as exclusion_flag,
         
         case when 
-            %do i=1 %to &total_rules;
+            (%do i=1 %to &total_rules;
                 %if "&&cat&i" = "INCLUSION" %then %do;
-                    (calculated &&name&i) or 
+                    (calculated &&name&i = 1) or 
                 %end;
-            %end;
-            0 then 1 else 0
+            %end; 0) then 1 else 0
         end as inclusion_flag
     from &input_ds a;
 quit;
-
-
-
 
 /* Step 5: Add binary indicators, audit trail, and validation_key */
 data &output_ds;
@@ -152,35 +169,6 @@ run;
 
 %mend analyze_comments_dynamic;
 
-
-
-
-
-data my_comments;
-informat id $20. comments $100.;
-infile datalines delimiter = '|';
-input id comments;
-datalines;
-1| i would like to submit a complaint.
-2|it is important to handle signle quotes correctly.
-;
-run;
-
-
-data exception_logic;
-    informat category $20. name $50.  pattern $100.;
-    infile datalines delimiter = ',';
-    input category name pattern;
-    datalines;
-EXCLUSION,wire_related,\b(?:wire[-\\s]*(?:transfer|xfr?|tf))\b
-EXCLUSION,advisor_related,\b(advisor(?:'s|s)?|advisory|advisor's|annuities)\b
-INCLUSION,complaint_related,\bcompl[aeiou]+nt[s]?[e]?s?\b
-;
-run;
-
-
-
-
 /* Invoke the macro */
 %analyze_comments_dynamic(
     input_ds=my_comments,
@@ -188,15 +176,5 @@ run;
     text_var=comments,
     logic_ds=exception_logic
 );
-;
-run;
 
-
-
-/* Invoke the macro */
-%analyze_comments_dynamic(
-    input_ds=my_comments,
-    output_ds=comment_analysis,
-    text_var=comments,
-    logic_ds=exception_logic
-);
+OPTIONS NOTES STIMER SOURCE SYNTAXCHECK;
