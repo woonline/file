@@ -8,12 +8,16 @@ data my_comments;
     datalines;
 ID001|Customer requested a wire transfer and mentioned advisor's advice.
 ID002|Complaint about service delays.
+ID003|NEED TO PUT A STOP PAYMENT ON A CHECK
+ID004|UNABLE TO RESOLVE THE COMPLAINT. WANTS TO MAKE PAYMENT WITH CHECK ENDORSED TO HER NAME
+ID004|WANT TO SET UP AUTOMATED PAYMENTS
+ID005|CUSTOMER IS BEHIND 3 PAYMENTS
 ;
 run;
 
 /* Exception logic dataset */
 data exception_logic;
-    informat category $20. name $50. pattern $100.;
+    informat category $20. name $50. pattern $5000.;
     infile datalines delimiter = ',';
     input category name pattern;
     datalines;
@@ -21,6 +25,7 @@ EXCLUSION,wire_related,\b(?:wire[-\\s]*(?:transfer|xfr?|tf))\b
 EXCLUSION,advisor_related,\b(advisor(?:'s|s)?|advisory|advisor's|annuities)\b
 INCLUSION,complaint_related,\bcompl[aeiou]+nt[s]?[e]?s?\b
 EXCLUSION,CC_related,\b^(?!.*\s*(features|promotion rate|balance rate|transfer high-rate balances|interest rate|cash reward(s)?|bonus|introductory rate|annual fee|APR|active cash|autograph|bilt mastercard|reflect|choice privileges|points|balance transfer|rewards))\b(apply(ing)?|applt|appt|open a(n)?|interested in|primary wf|automatic payment(s)?)\b
+INCLUSION,payment_related,(?!.*\b(?:auto|car|card|monthly\/automatic|reacurring\/mortgage|stop|set up|make(?:a)?|last\/online|(?:accepting)?|and)\s*(?:credit\/debit)?\s*card\s*payments?\b(?!.*\b(?:behind(?:in| on)?)(?=\s*(?:payment[s]?|pymts))\b))
 ;
 run;
 
@@ -47,7 +52,7 @@ proc sql noprint;
     select category,
            name,
            pattern,
-           tranwrd(pattern, "'", "''") as pattern_escaped 
+           tranwrd(pattern, "'", "''") as pattern_escaped length=5000
     into :cat1 - :cat%left(&total_rules),
          :name1 - :name%left(&total_rules),
          :pat1 - :pat%left(&total_rules),
@@ -108,9 +113,9 @@ quit;
 data &output_ds;
     set temp_output;
     /* Define lengths based on the number of rules */
-    length matched_categories $100 matched_patterns $200 
+    length matched_categories $100 matched_patterns $5000 
            Excl_Ind $&total_exc_rules Incl_Ind $&total_inc_rules
-           exc_key $500 inc_key $500 validation_key $1000;
+           exc_key $500 inc_key $500 validation_key $5000;
     matched_categories = "";
     matched_patterns = "";
     Excl_Ind = "";
