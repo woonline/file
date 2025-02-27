@@ -20,6 +20,7 @@ data exception_logic;
 EXCLUSION,wire_related,\b(?:wire[-\\s]*(?:transfer|xfr?|tf))\b
 EXCLUSION,advisor_related,\b(advisor(?:'s|s)?|advisory|advisor's|annuities)\b
 INCLUSION,complaint_related,\bcompl[aeiou]+nt[s]?[e]?s?\b
+EXCLUSION,CC_related,\b^(?!.*\s*(features|promotion rate|balance rate|transfer high-rate balances|interest rate|cash reward(s)?|bonus|introductory rate|annual fee|APR|active cash|autograph|bilt mastercard|reflect|choice privileges|points|balance transfer|rewards))\b(apply(ing)?|applt|appt|open a(n)?|interested in|primary wf|automatic payment(s)?)\b
 ;
 run;
 
