@@ -1,0 +1,202 @@
+
+
+
+%macro analyze_comments_dynamic(input_ds=, output_ds=, text_var=comments, logic_ds=exception_logic);
+/* 
+Purpose: Analyzes freeform text comments and applies exception logics for monitoring.
+Parameters:
+    input_ds  - Input dataset containing comments
+    output_ds - Output dataset with indicators and audit trail
+    text_var  - Name of the text variable (default: comments)
+    logic_ds  - Dataset with exception logics (default: exception_logic)
+*/
+
+/* Step 1: Create macro variables from the exception logic dataset */
+proc sql noprint;
+    select count(*) into :total_exc_rules 
+    from &logic_ds where category = 'EXCLUSION';
+
+    select count(*) into :total_inc_rules 
+    from &logic_ds where category = 'INCLUSION';
+
+    %let total_rules = %eval(&total_exc_rules + &total_inc_rules);
+
+    select category,
+           name,
+           pattern,
+           tranwrd(pattern, "'", "''") as pattern_escaped 
+    into :cat1 - :cat%left(&total_rules),
+         :name1 - :name%left(&total_rules),
+         :pat1 - :pat%left(&total_rules),
+         :pat_esc1 - :pat_esc%left(&total_rules)
+    from &logic_ds;
+quit;
+
+/* Step 2: Print macro variables for validation */
+%put === Macro Variables for Validation ===;
+%put Total exclusion rules: &total_exc_rules;
+%put Total inclusion rules: &total_inc_rules;
+%do i=1 %to &total_rules;
+    %put Rule &i: Category=&&cat&i, Name=&&name&i, Pattern=%superq(pat&i), Escaped Pattern=%superq(pat_esc&i);
+%end;
+%put =================================;
+
+/* Step 3: Build CASE statements with proper comma handling */
+%let case_statements = ;
+%do i = 1 %to &total_rules;
+    %let escaped_pattern = %superq(pat_esc&i);
+    %let case_statements = &case_statements
+        case
+            when prxmatch("/&escaped_pattern/oi", &text_var) then 1
+            else 0
+        end as &&name&i
+    ;
+    %if &i < &total_rules %then %let case_statements = &case_statements,;
+%end;
+
+/* Step 4: Create temporary dataset with indicators (fixed) */
+proc sql;
+    create table temp_output as
+    select 
+        a.*,  /* Original dataset variables */
+        /* Individual indicators */
+        &case_statements,
+        
+        /* Composite flags */
+        case when 
+            %do i=1 %to &total_rules;
+                %if "&&cat&i" = "EXCLUSION" %then %do;
+                    (calculated &&name&i) or 
+                %end;
+            %end;
+            0 then 1 else 0
+        end as exclusion_flag,
+        
+        case when 
+            %do i=1 %to &total_rules;
+                %if "&&cat&i" = "INCLUSION" %then %do;
+                    (calculated &&name&i) or 
+                %end;
+            %end;
+            0 then 1 else 0
+        end as inclusion_flag
+    from &input_ds a;
+quit;
+
+
+
+
+/* Step 5: Add binary indicators, audit trail, and validation_key */
+data &output_ds;
+    set temp_output;
+    /* Define lengths based on the number of rules */
+    length matched_categories $100 matched_patterns $200 
+           Excl_Ind $&total_exc_rules Incl_Ind $&total_inc_rules
+           exc_key $500 inc_key $500 validation_key $1000;
+    matched_categories = "";
+    matched_patterns = "";
+    Excl_Ind = "";
+    Incl_Ind = "";
+    exc_key = "";
+    inc_key = "";
+    
+    /* Build binary indicators, audit trail, and validation key */
+    %do i=1 %to &total_rules;
+        if &&name&i = 1 then do;
+            matched_categories = catx(", ", matched_categories, "&&cat&i");
+            matched_patterns = catx(", ", matched_patterns, "&&pat&i");
+            if "&&cat&i" = "EXCLUSION" then do;
+                Excl_Ind = cats(Excl_Ind, "1");
+                exc_key = catx("; ", exc_key, "&&name&i=1");
+            end;
+            else if "&&cat&i" = "INCLUSION" then do;
+                Incl_Ind = cats(Incl_Ind, "1");
+                inc_key = catx(", ", inc_key, "&&name&i=1");
+            end;
+        end;
+        else do;
+            if "&&cat&i" = "EXCLUSION" then do;
+                Excl_Ind = cats(Excl_Ind, "0");
+                exc_key = catx("; ", exc_key, "&&name&i=0");
+            end;
+            else if "&&cat&i" = "INCLUSION" then do;
+                Incl_Ind = cats(Incl_Ind, "0");
+                inc_key = catx(", ", inc_key, "&&name&i=0");
+            end;
+        end;
+    %end;
+    /* Construct validation_key */
+    if exc_key = "" then exc_key = "None=0"; /* Handle case with no exclusion rules */
+    if inc_key = "" then inc_key = "None=0"; /* Handle case with no inclusion rules */
+    validation_key = "(" || strip(exc_key) || ") | (" || strip(inc_key) || ")";
+    
+    /* Clean up extra spaces */
+    matched_categories = compbl(matched_categories);
+    matched_patterns = compbl(matched_patterns);
+run;
+
+/* Step 6: Clean up temporary dataset */
+proc sql;
+    drop table temp_output;
+quit;
+
+/* Step 7: Generate a summary report */
+proc freq data=&output_ds;
+    tables exclusion_flag inclusion_flag 
+        %do i=1 %to &total_rules;
+            &&name&i
+        %end;
+        / nocum nopercent;
+    title "Dynamic Monitoring Strategy Exception Analysis";
+run;
+
+%mend analyze_comments_dynamic;
+
+
+
+
+
+data my_comments;
+informat id $20. comments $100.;
+infile datalines delimiter = '|';
+input id comments;
+datalines;
+1| i would like to submit a complaint.
+2|it is important to handle signle quotes correctly.
+;
+run;
+
+
+data exception_logic;
+    informat category $20. name $50.  pattern $100.;
+    infile datalines delimiter = ',';
+    input category name pattern;
+    datalines;
+EXCLUSION,wire_related,\b(?:wire[-\\s]*(?:transfer|xfr?|tf))\b
+EXCLUSION,advisor_related,\b(advisor(?:'s|s)?|advisory|advisor's|annuities)\b
+INCLUSION,complaint_related,\bcompl[aeiou]+nt[s]?[e]?s?\b
+;
+run;
+
+
+
+
+/* Invoke the macro */
+%analyze_comments_dynamic(
+    input_ds=my_comments,
+    output_ds=comment_analysis,
+    text_var=comments,
+    logic_ds=exception_logic
+);
+;
+run;
+
+
+
+/* Invoke the macro */
+%analyze_comments_dynamic(
+    input_ds=my_comments,
+    output_ds=comment_analysis,
+    text_var=comments,
+    logic_ds=exception_logic
+);
