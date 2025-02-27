@@ -1,31 +1,52 @@
 OPTIONS NONOTES NOSTIMER NOSOURCE NOSYNTAXCHECK;
 
 /* Test comments dataset */
-data my_comments;
-    informat id $20. comments $100.;
-    infile datalines delimiter = '|';
-    input id comments;
-    datalines;
-ID001|Customer requested a wire transfer and mentioned advisor's advice.
-ID002|Complaint about service delays.
-ID003|NEED TO PUT A STOP PAYMENT ON A CHECK
-ID004|UNABLE TO RESOLVE THE COMPLAINT. WANTS TO MAKE PAYMENT WITH CHECK ENDORSED TO HER NAME
-ID004|WANT TO SET UP AUTOMATED PAYMENTS
-ID005|CUSTOMER IS BEHIND 3 PAYMENTS
+data Comment_Text;
+infile datalines dlm='|' dsd truncover;
+input Flagged_Word : $20.
+	Target_Population : $20.
+	violation_category : $30.
+	Random : $1.
+	Exc_ID : $20.
+	comments : $200.;
+datalines;
+credit card| Teller|Customer Engagement | Y | Teller_CE_CC | "consent" credit card options
+DISCUSS | Banker| Customer Engagement| Y |Banker CE|$250K FOR PREMIER PROMO. WANTS TO DISCUSS OPTIONS TO MOVE THEIR MONEY. HUSBAND HAS $500K AT CHASE FOR HIS RETIR 
+discuss| Banker | Customer Engagement | Y |Banker_CE|$3.5 million will be wire into account tomorrow, walked over to fa to discuss options
+credit card| Teller| Customer Engagement |Y|Teller_CE_CC| (10:00am) She did a deposit. She is interested in a new credit card and wants to know the benefits.
+credit card|Teller|Customer Engagement|Y|Teller_CE_CC| (2:00pm) Customer came in to cash a check. He just completed a year and is interested in a credit card.
+credit card| Teller | Customer Engagement |Y|Teller_CE_CC| (2:00pm) She wants to know about the benefits of a credit card to apply•
+credit card|Teller|Customer Engagement|Y|Teller_CE_CC| (financial coaching) customer interested in credit card. Credit building credit card|Teller|Custoner Engagement|Y|Teller_CE_CC| (financial coaching) customer wants to build credit apply credit card Credit card|Teller| Customer Engagement |X|Teller_CE_CC|***CUST REQUESTS CALL AFTER 3:30 PM ***Cust is intersted in appling for Credit card. Mentioned he was des payments|Teller| Collections|X|Teller_Coll_Pymt|- Inquring about automatic payments had some questions
 ;
 run;
 
+
 /* Exception logic dataset */
-data exception_logic;
-    informat category $20. name $50. pattern $5000.;
-    infile datalines delimiter = ',';
-    input category name pattern;
-    datalines;
-EXCLUSION,wire_related,\b(?:wire[-\\s]*(?:transfer|xfr?|tf))\b
-EXCLUSION,advisor_related,\b(advisor(?:'s|s)?|advisory|advisor's|annuities)\b
-INCLUSION,complaint_related,\bcompl[aeiou]+nt[s]?[e]?s?\b
-EXCLUSION,CC_related,\b^(?!.*\s*(features|promotion rate|balance rate|transfer high-rate balances|interest rate|cash reward(s)?|bonus|introductory rate|annual fee|APR|active cash|autograph|bilt mastercard|reflect|choice privileges|points|balance transfer|rewards))\b(apply(ing)?|applt|appt|open a(n)?|interested in|primary wf|automatic payment(s)?)\b
-INCLUSION,payment_related,(?!.*\b(?:auto|car|card|monthly\/automatic|reacurring\/mortgage|stop|set up|make(?:a)?|last\/online|(?:accepting)?|and)\s*(?:credit\/debit)?\s*card\s*payments?\b(?!.*\b(?:behind(?:in| on)?)(?=\s*(?:payment[s]?|pymts))\b))
+/* data exception_logic; */
+/*     informat category $20. name $50. pattern $5000.; */
+/*     infile datalines delimiter = ','; */
+/*     input category name pattern; */
+/*     datalines; */
+/* EXCLUSION,wire_related,\b(?:wire[-\\s]*(?:transfer|xfr?|tf))\b */
+/* EXCLUSION,advisor_related,\b(advisor(?:'s|s)?|advisory|advisor's|annuities)\b */
+/* INCLUSION,complaint_related,\bcompl[aeiou]+nt[s]?[e]?s?\b */
+/* EXCLUSION,CC_related,\b^(?!.*\s*(features|promotion rate|balance rate|transfer high-rate balances|interest rate|cash reward(s)?|bonus|introductory rate|annual fee|APR|active cash|autograph|bilt mastercard|reflect|choice privileges|points|balance transfer|rewards))\b(apply(ing)?|applt|appt|open a(n)?|interested in|primary wf|automatic payment(s)?)\b */
+/* INCLUSION,payment_related,(?!.*\b(?:auto|car|card|monthly\/automatic|reacurring\/mortgage|stop|set up|make(?:a)?|last\/online|(?:accepting)?|and)\s*(?:credit\/debit)?\s*card\s*payments?\b(?!.*\b(?:behind(?:in| on)?)(?=\s*(?:payment[s]?|pymts))\b)) */
+/* ; */
+/* run; */
+
+data Exception_Logic;
+infile datalines dlm='09'x dsd truncover;
+input
+Exc_ID : $20.
+Category : $20.
+NAME : $30.
+pattern : $500.
+;
+format EFF_START_DT EFF_END_DT mnddyy10.;
+datalines;
+Teller_CE_CC	EXCLUSION	CC_related	\b^(?!.*\s*(features|promotion rate|balance rate|transfer high-rate balances|interest rate|cash reward(s)?|bonus|introductory rate|annual fee|APR|active cash|autograph|bilt mastercard|reflect|choice privileges|points|balance transfer|rewards))\b(apply(ing)?|applt|appt|open a(n)?|interested in|primary wf|automatic payment(s)?)\b	
+	INCLUSION	complaint_related	complaint_related,\bcompl[aeiou]+nt[s]?[e]?s?\b
 ;
 run;
 
@@ -177,7 +198,7 @@ run;
 
 /* Invoke the macro */
 %analyze_comments_dynamic(
-    input_ds=my_comments,
+    input_ds=Comment_Text,
     output_ds=comment_analysis,
     text_var=comments,
     logic_ds=exception_logic
