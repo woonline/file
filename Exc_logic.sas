@@ -20,21 +20,7 @@ credit card|Teller|Customer Engagement|Y|Teller_CE_CC| (financial coaching) cust
 ;
 run;
 
-
 /* Exception logic dataset */
-/* data exception_logic; */
-/*     informat category $20. name $50. pattern $5000.; */
-/*     infile datalines delimiter = ','; */
-/*     input category name pattern; */
-/*     datalines; */
-/* EXCLUSION,wire_related,\b(?:wire[-\\s]*(?:transfer|xfr?|tf))\b */
-/* EXCLUSION,advisor_related,\b(advisor(?:'s|s)?|advisory|advisor's|annuities)\b */
-/* INCLUSION,complaint_related,\bcompl[aeiou]+nt[s]?[e]?s?\b */
-/* EXCLUSION,CC_related,\b^(?!.*\s*(features|promotion rate|balance rate|transfer high-rate balances|interest rate|cash reward(s)?|bonus|introductory rate|annual fee|APR|active cash|autograph|bilt mastercard|reflect|choice privileges|points|balance transfer|rewards))\b(apply(ing)?|applt|appt|open a(n)?|interested in|primary wf|automatic payment(s)?)\b */
-/* INCLUSION,payment_related,(?!.*\b(?:auto|car|card|monthly\/automatic|reacurring\/mortgage|stop|set up|make(?:a)?|last\/online|(?:accepting)?|and)\s*(?:credit\/debit)?\s*card\s*payments?\b(?!.*\b(?:behind(?:in| on)?)(?=\s*(?:payment[s]?|pymts))\b)) */
-/* ; */
-/* run; */
-
 data Exception_Logic;
 infile datalines dlm='09'x dsd truncover;
 input
@@ -60,7 +46,7 @@ Parameters:
     logic_ds  - Dataset with exception logics (default: exception_logic)
 */
 
-/* Step 1: Create macro variables from the exception logic dataset */
+/* Step 1: Create macro variables from the exception logic dataset including Exc_ID */
 proc sql noprint;
     select count(*) into :total_exc_rules 
     from &logic_ds where category = 'EXCLUSION';
@@ -70,14 +56,18 @@ proc sql noprint;
 
     %let total_rules = %eval(&total_exc_rules + &total_inc_rules);
 
-    select category,
-           name,
-           pattern,
-           tranwrd(pattern, "'", "''") as pattern_escaped length=5000
-    into :cat1 - :cat%left(&total_rules),
-         :name1 - :name%left(&total_rules),
-         :pat1 - :pat%left(&total_rules),
-         :pat_esc1 - :pat_esc%left(&total_rules)
+    select 
+        Exc_ID,
+        category,
+        name,
+        pattern,
+        tranwrd(pattern, "'", "''") as pattern_escaped length=5000
+    into 
+        :exc_id1 - :exc_id%left(&total_rules),
+        :cat1 - :cat%left(&total_rules),
+        :name1 - :name%left(&total_rules),
+        :pat1 - :pat%left(&total_rules),
+        :pat_esc1 - :pat_esc%left(&total_rules)
     from &logic_ds;
 quit;
 
@@ -86,17 +76,24 @@ quit;
 %put Total exclusion rules: &total_exc_rules;
 %put Total inclusion rules: &total_inc_rules;
 %do i=1 %to &total_rules;
-    %put Rule &i: Category=&&cat&i, Name=&&name&i, Pattern=%superq(pat&i), Escaped Pattern=%superq(pat_esc&i);
+    %put Rule &i: Exc_ID=&&exc_id&i, Category=&&cat&i, Name=&&name&i, Pattern=%superq(pat&i), Escaped Pattern=%superq(pat_esc&i);
 %end;
 %put =================================;
 
-/* Step 3: Build CASE statements with proper comma handling */
+/* Step 3: Build CASE statements with proper Exc_ID handling */
 %let case_statements = ;
 %do i = 1 %to &total_rules;
+    %let exc_id = &&exc_id&i;
     %let escaped_pattern = %superq(pat_esc&i);
+    %if &exc_id ne %then %do;
+        %let condition = a.Exc_ID = "&exc_id";
+    %end;
+    %else %do;
+        %let condition = a.Exc_ID = '';
+    %end;
     %let case_statements = &case_statements
         case
-            when prxmatch("/&escaped_pattern/i", &text_var) then 1
+            when prxmatch("/&escaped_pattern/i", &text_var) and &condition then 1
             else 0
         end as &&name&i
     ;
@@ -201,7 +198,7 @@ run;
     input_ds=Comment_Text,
     output_ds=comment_analysis,
     text_var=comments,
-    logic_ds=exception_logic
+    logic_ds=Exception_Logic
 );
 
 OPTIONS NOTES STIMER SOURCE SYNTAXCHECK;
