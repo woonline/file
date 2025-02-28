@@ -204,4 +204,42 @@ run;
     logic_ds=Exception_Logic
 );
 
+%macro comment_analysis_metrics;
+/* 
+Purpose: Produces comprehensive metrics on the comment_analysis dataset.
+Metrics include frequency tables for flags and rule indicators, cross-tabulation of flags, and summary statistics.
+*/
+
+/* Step 1: Dynamically identify rule indicator variables (assuming they end with '_related') */
+proc sql noprint;
+    select name into :rule_indicators separated by ' '
+    from dictionary.columns
+    where libname='WORK' and memname='COMMENT_ANALYSIS' and lowcase(name) like '%_related';
+quit;
+
+/* Step 2: Generate frequency tables for exclusion_flag, inclusion_flag, and rule indicators */
+proc freq data=comment_analysis;
+    tables exclusion_flag inclusion_flag &rule_indicators / nocum nopercent;
+    tables exclusion_flag * inclusion_flag / nocol norow nopercent;
+run;
+
+/* Step 3: Calculate summary statistics */
+proc sql;
+    select 
+        count(*) as total_comments label='Total Number of Comments',
+        sum(exclusion_flag) as total_exclusions label='Number of Exclusions',
+        sum(inclusion_flag) as total_inclusions label='Number of Inclusions',
+        sum(exclusion_flag and inclusion_flag) as both_flags label='Number with Both Flags',
+        calculated total_exclusions / calculated total_comments as exclusion_rate format=percent8.1 label='Exclusion Rate',
+        calculated total_inclusions / calculated total_comments as inclusion_rate format=percent8.1 label='Inclusion Rate',
+        calculated both_flags / calculated total_comments as both_rate format=percent8.1 label='Both Flags Rate'
+    from comment_analysis;
+quit;
+
+%mend comment_analysis_metrics;
+
+/* Invoke the macro */
+%comment_analysis_metrics;
+
+
 OPTIONS NOTES STIMER SOURCE SYNTAXCHECK;
