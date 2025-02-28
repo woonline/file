@@ -22,17 +22,17 @@ run;
 
 /* Exception logic dataset */
 data Exception_Logic;
-infile datalines dlm='09'x dsd truncover;
-input
-Exc_ID : $20.
-Category : $20.
-NAME : $30.
-pattern : $500.
-;
-format EFF_START_DT EFF_END_DT mnddyy10.;
-datalines;
-Teller_CE_CC	EXCLUSION	CC_related	\b^(?!.*\s*(features|promotion rate|balance rate|transfer high-rate balances|interest rate|cash reward(s)?|bonus|introductory rate|annual fee|APR|active cash|autograph|bilt mastercard|reflect|choice privileges|points|balance transfer|rewards))\b(apply(ing)?|applt|appt|open a(n)?|interested in|primary wf|automatic payment(s)?)\b	
-	INCLUSION	complaint_related	complaint_related,\bcompl[aeiou]+nt[s]?[e]?s?\b
+    infile datalines dlm='09'x dsd truncover;
+    input
+        Exc_ID : $20.
+        Category : $20.
+        NAME : $30.
+        pattern : $5000.
+    ;
+    datalines;
+Teller_CE_CC	EXCLUSION	CC_related	\b^(?!.*\s*(features|promotion rate|balance rate|transfer high-rate balances|interest rate|cash reward(s)?|bonus|introductory rate|annual fee|APR|active cash|autograph|bilt mastercard|reflect|choice privileges|points|balance transfer|rewards))\b(apply(ing)?|applt|appt|open a(n)?|interested in|primary wf|automatic payment(s)?)\b  
+	INCLUSION	complaint_related	\bcompl[aeiou]+nt[s]?[e]?s?\b
+Teller_CE_Pymt	INCLUSION	Pymt_related	\bpayments?\b(?=.*\b(?:behind(?: in| on)?|due|late)\b)(?!.*\b(?:auto|car|card|monthly|automatic|recurring|mortgage|stop|set up|make(?: a)?|last|online|accepting|and|credit|debit)\b)
 ;
 run;
 
