@@ -11,6 +11,47 @@ run;
 
 data check_specials;
     set letters;
+    length special_chars $50 cleaned_message $50; /* Add cleaned_message to store result */
+    
+    /* Step 1: Check if special characters exist */
+    if prxmatch('/[^A-Za-z0-9 ]/', message) > 0 then do;
+        has_special = 'Yes';
+        
+        /* Step 2: Extract special characters */
+        special_chars = compress(message, 'A-Za-z0-9 ', 'k');
+        
+        /* Step 3: Replace special characters with a space (or another character) */
+        cleaned_message = prxchange('s/[^A-Za-z0-9 ]/ /', -1, message);
+        /* 's/pattern/replacement/' replaces all non-alphanumeric/space chars with a space */
+        /* -1 means replace all occurrences */
+    end;
+    else do;
+        has_special = 'No';
+        special_chars = '';
+        cleaned_message = message; /* No change if no special characters */
+    end;
+run;
+
+proc print data=check_specials;
+    var message has_special special_chars cleaned_message;
+run;
+
+
+
+
+data letters;
+    input message $50.;
+    datalines;
+Dear Elias, keep the light on!
+I’ll be home soon...
+War is a cruel thief.
+No specials here
+Rain & tears fall together
+;
+run;
+
+data check_specials;
+    set letters;
     length special_chars $50; /* To store the list of special characters */
     
     /* Step 1: Check if special characters exist */
