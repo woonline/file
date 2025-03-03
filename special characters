@@ -1,0 +1,33 @@
+data letters;
+    input message $50.;
+    datalines;
+Dear Elias, keep the light on!
+I’ll be home soon...
+War is a cruel thief.
+No specials here
+Rain & tears fall together
+;
+run;
+
+data check_specials;
+    set letters;
+    length special_chars $50; /* To store the list of special characters */
+    
+    /* Step 1: Check if special characters exist */
+    if prxmatch('/[^A-Za-z0-9 ]/', message) > 0 then do;
+        has_special = 'Yes';
+        
+        /* Step 2: Extract special characters */
+        /* Remove all alphanumeric characters and spaces, leaving only specials */
+        special_chars = compress(message, 'A-Za-z0-9 ', 'k'); 
+        /* 'k' keeps only the characters NOT in the list (A-Za-z0-9 and space) */
+    end;
+    else do;
+        has_special = 'No';
+        special_chars = '';
+    end;
+run;
+
+proc print data=check_specials;
+    var message has_special special_chars;
+run;
