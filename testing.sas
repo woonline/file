@@ -1,5 +1,23 @@
+data freeform;
+length flagged_word excption_satus text $500; 
+infile datalines dlm = '|';
+input flagged_word excption_satus text $; 
+datalines;
+credit card | Exclusion | wants to open up a credit card 
+credit card | Exclusion | apply for credit card
+credit card | Exclusion | would like to apply for a credit card for building her credit 
+credit card | Exclusion | made appt for credit card questions
+credit card | Exclusion | apple for credit card
+credit card | Exclusion | switching credit cards and updates to acts
+credit card | Exclusion | Interested on learning about credit loans and credit cards
+credit card | Exclusion | Wants to ehar about our bi=usiness credit cards. Got referreed in the past but neer got the call
+credit card | Exclusion | cust wants information about credit cards 832 723 4147
+credit card | Exclusion | I discovered that the customer does not have any credit cards with us and we can help her apply for one 
+;
+run;
+
 data test_results;
-    set test_records;
+    set freeform;
     retain re;
     /* 
        Compile the enhanced regular expression:
@@ -13,7 +31,7 @@ data test_results;
        - The negative lookahead excludes records with words like discuss, rate, feature, or employee.
     */
     if _n_ = 1 then do;
-        re = prxparse('/(?i)(?:(?:(?:credit\s+cards?|CC)\b.*?\b((?:apply|applying|question|ask|questions|switch(?:ed|ing)?)))|(?:(?:(apply|applying|question|ask|questions|switch(?:ed|ing)?))\b.*?\b(?:credit\s+cards?|CC)))(?!.*\b(?:discuss|rate|feature|employee)\b)/');
+        re = prxparse('/(?i)(?:(?:(?:credit\s+cards?|CC)\b.*?\b((?:apply|applying|aply|applt|open(?:\s+up)?|want(?:s)?(?:\s+information)?|interested|question|ask|questions|switch(?:ed|ing)?)))|(?:(?:(apply|applying|aply|applt|open(?:\s+up)?|want(?:s)?(?:\s+information)?|interested|question|ask|questions|switch(?:ed|ing)?))\b.*?\b(?:credit\s+cards?|CC)))(?!.*\b(?:discuss|rate|feature|employee)\b)/');
         if missing(re) then do;
             put "ERROR: Invalid regular expression.";
             stop;
