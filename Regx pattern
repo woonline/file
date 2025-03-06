@@ -1,3 +1,7 @@
+/\b(?:credit\s+cards?|CC)\b.*?\b(?:apply|applying|question|ask|questions)\b(?!.*\b(?:discuss|rate|feature|benefit|employee)\b/i
+
+
+
 /(?=.*(?:\b(?:credit\s*[-]?card|cc)\b(?:\s+(?:question|ask|apply|switch|change|close)\b)|\b(?:question|ask|apply|switch|change|close)\b(?:\s+\b(?:credit\s*[-]?card|cc)\b)))(?=.*\b(?:credit\s*[-]?card|cc)\b)(?=.*\b(?:question|ask|inquir(y|ies)|help|explain|how|what|why|when|which|where|apply|application|sign\s*up|get|obtain|request|open|switch|change|transfer|replace|cancel|swap|close)\b)/i
 
 
