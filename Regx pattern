@@ -1,3 +1,6 @@
+/(?=.*(?:\b(?:credit\s*[-]?card|cc)\b(?:\s+(?:question|ask|apply|switch|change|close)\b)|\b(?:question|ask|apply|switch|change|close)\b(?:\s+\b(?:credit\s*[-]?card|cc)\b)))(?=.*\b(?:credit\s*[-]?card|cc)\b)(?=.*\b(?:question|ask|inquir(y|ies)|help|explain|how|what|why|when|which|where|apply|application|sign\s*up|get|obtain|request|open|switch|change|transfer|replace|cancel|swap|close)\b)/i
+
+
 /\b(?!(.*\b(unless|before|between|after|right now|email|appointment|appt|working with|being handled referral is for lif you are not|weekend (this|next) week|out of town|until|tomorrow|monday(s)?|mon(s)?|tuesday(s)?|tue(s)?|wednesday(s)?|wed(s)?|thursday(s)?|thu(s)?|friday(s)?|fri(s)?|number|(call|contact) you|gave card|too early|on wed|now|today)))\b(do not call|don't call|dont call|no call|no calls|do not contact|I don't contact|dont contact)\b/i
 
 
