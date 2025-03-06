@@ -1,3 +1,5 @@
+        re = prxparse('/(?i)(?:(?:(?:credit\s+cards?|CC)\b.*?\b(?:apply|applying|question|ask|questions))|(?:(?:apply|applying|question|ask|questions)\b.*?\b(?:credit\s+cards?|CC)))(?!.*\b(?:discuss|rate|feature|benefit|employee)\b)/');
+
 /\b(?:credit\s+cards?|CC)\b.*?\b(?:apply|applying|question|ask|questions)\b(?!.*\b(?:discuss|rate|feature|benefit|employee)\b/i
 
 
