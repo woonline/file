@@ -13,38 +13,34 @@ credit card | Exclusion | Interested on learning about credit loans and credit c
 credit card | Exclusion | Wants to ehar about our bi=usiness credit cards. Got referreed in the past but neer got the call
 credit card | Exclusion | cust wants information about credit cards 832 723 4147
 credit card | Exclusion | I discovered that the customer does not have any credit cards with us and we can help her apply for one 
+credit card | Inclusion | credit card with 0% introductory annual fee
+credit card | Inclusion | transfer high-rate balances to our new credit card
+credit card | Inclusion | apply for active cash credit card
+credit card | Inclusion | choice privileges points system for credit card
+credit card | Inclusion | rewards program for credit card customers
 ;
 run;
 
 data test_results;
     set freeform;
     retain re;
-    /* 
-       Compile the enhanced regular expression:
-       - (?i) sets case-insensitive matching.
-       - Two alternatives are provided:
-           1. Credit card reference (or "CC") comes first, then later an action word.
-              In this case the action word is captured in group 1.
-           2. An action word comes first (captured in group 2), then later the credit card reference.
-       - The action words group now includes "apply", "applying", "question", "ask", "questions", 
-         and "switch" with variants (switch, switched, switching).
-       - The negative lookahead excludes records with words like discuss, rate, feature, or employee.
-    */
+    
+    /* Compile the enhanced regular expression */
     if _n_ = 1 then do;
-        re = prxparse('/(?i)(?:(?:(?:credit\s+cards?|CC)\b.*?\b((?:apply|applying|aply|applt|open(?:\s+up)?|want(?:s)?(?:\s+information)?|interested|question|ask|questions|switch(?:ed|ing)?)))|(?:(?:(apply|applying|aply|applt|open(?:\s+up)?|want(?:s)?(?:\s+information)?|interested|question|ask|questions|switch(?:ed|ing)?))\b.*?\b(?:credit\s+cards?|CC)))(?!.*\b(?:discuss|rate|feature|employee)\b)/');
+        re = prxparse('/(?i)(?:(?:(?:credit\s+cards?|CC)\b.*?\b((?:apply|applying|aply|applt|open(?:\s+up)?|want(?:s)?(?:\s+information)?|interested|question|ask|questions|switch(?:ed|ing)?)))|(?:(?:(apply|applying|aply|applt|open(?:\s+up)?|want(?:s)?(?:\s+information)?|interested|question|ask|questions|switch(?:ed|ing)?))\b.*?\b(?:credit\s+cards?|CC)))(?!.*\b((?:discuss|features|promotion\s+rate(?:s)?|balance\s+rate(?:s)?|transfer\s+high-rate\s+balances|interest\s+rate(?:s)?|cash\s+reward(?:s)?|bonu(?:s9)?|(intro|introductory)\s+(annual|rate|fee)|percentage\s+rate|apr|annual\s+fee|active\s+cash|autograph|bilt\s+mastercard|reflect|choice\s+privileges|point(?:s)?|balance\s+transfer|reward(?:s)?))\b)/');
+
         if missing(re) then do;
             put "ERROR: Invalid regular expression.";
             stop;
         end;
     end;
 
-    /* Apply the regular expression to the text field */
+    /* Apply the regex pattern */
     match = prxmatch(re, text);
     
-    /* Initialize the reasoning variable */
-    length reasoning $200;
+    /* Initialize the reasoning column */
+    length reasoning exclusion_term category $250;
     if match then do;
-        /* Extract captured action word from either group 1 or group 2 by passing the source string */
         action1 = prxposn(re, 1, text);
         action2 = prxposn(re, 2, text);
         if strip(action1) ne '' then 
@@ -55,13 +51,30 @@ data test_results;
             reasoning = 'Flagged: Pattern matched';
     end;
     else do;
-        reasoning = 'Not flagged: Pattern did not match';
+        /* Extract the matched exclusion term dynamically */
+        exclusion_term = prxposn(re, 3, text);
+        
+        /* Map the exclusion term to its category dynamically */
+        if prxmatch('/\bfeatures\b/i', exclusion_term) then category = 'Feature-related terms';
+        else if prxmatch('/\bpromotion\s+rate(?:s)?|balance\s+rate(?:s)?\b/i', exclusion_term) then category = 'Balance Transfers & Interest Rates';
+        else if prxmatch('/\btransfer\s+high-rate\s+balances|interest\s+rate(?:s)?\b/i', exclusion_term) then category = 'Balance Transfers & Interest Rates';
+        else if prxmatch('/\bcash\s+reward(?:s)?|bonu(?:s9)?\b/i', exclusion_term) then category = 'Rewards & Bonuses';
+        else if prxmatch('/\b(intro|introductory)\s+(annual|rate|fee)\b/i', exclusion_term) then category = 'Introductory Offers & Fees';
+        else if prxmatch('/\bpercentage\s+rate|apr|annual\s+fee\b/i', exclusion_term) then category = 'Introductory Offers & Fees';
+        else if prxmatch('/\bactive\s+cash|autograph|bilt\s+mastercard|reflect|choice\s+privileges\b/i', exclusion_term) then category = 'Specific Card Programs';
+        else if prxmatch('/\bpoint(?:s)?|balance\s+transfer|reward(?:s)?\b/i', exclusion_term) then category = 'Rewards & Bonuses';
+
+        /* Assign reasoning based on extracted exclusion category */
+        if category ne '' then
+            reasoning = cats('Not flagged: Excluded due to "', category, '" (matched term: "', strip(exclusion_term), '")');
+        else
+            reasoning = 'Not flagged: Pattern did not match';
     end;
     
-    drop action1 action2;
+    drop action1 action2 exclusion_term category;
 run;
 
 proc print data=test_results noobs;
     var text match reasoning;
-    title "Enhanced Pattern Test Results with Reasoning";
+    title "Enhanced Pattern Test Results with Dynamic Exclusion Categories";
 run;
