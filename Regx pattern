@@ -1,4 +1,7 @@
-        re = prxparse('/(?i)(?:(?:(?:credit\s+cards?|CC)\b.*?\b(?:apply|applying|question|ask|questions))|(?:(?:apply|applying|question|ask|questions)\b.*?\b(?:credit\s+cards?|CC)))(?!.*\b(?:discuss|rate|feature|benefit|employee)\b)/');
+\b(?i)(?:(?:credit\s+cards?|CC)\b.*?\b(?:apply|applying|aply|applt|open(?:\s+up)?|want(?:s)?(?:\s+information)?|interested|question|ask|questions|switch(?:ed|ing)?)|(?:apply|applying|aply|applt|open(?:\s+up)?|want(?:s)?(?:\s+information)?|interested|question|ask|questions|switch(?:ed|ing)?)\b.*?\b(?:credit\s+cards?|CC))\b(?!.*\b(?:discuss|features|promotion\s+rate(?:s)?|balance\s+rate(?:s)?|transfer\s+high-rate\s+balances|interest\s+rate(?:s)?|cash\s+reward(?:s)?|bonu(?:s9)?|(?:intro|introductory)\s+(annual|rate|fee)|percentage\s+rate|apr|annual\s+fee|active\s+cash|autograph|bilt\s+mastercard|reflect|choice\s+privileges|point(?:s)?|balance\s+transfer|reward(?:s)?)\b)
+
+
+re = prxparse('/(?i)(?:(?:(?:credit\s+cards?|CC)\b.*?\b(?:apply|applying|question|ask|questions))|(?:(?:apply|applying|question|ask|questions)\b.*?\b(?:credit\s+cards?|CC)))(?!.*\b(?:discuss|rate|feature|benefit|employee)\b)/');
 
 /\b(?:credit\s+cards?|CC)\b.*?\b(?:apply|applying|question|ask|questions)\b(?!.*\b(?:discuss|rate|feature|benefit|employee)\b/i
 
