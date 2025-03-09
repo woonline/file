@@ -1,3 +1,84 @@
+Special Needs Family Context
+(?i)\b(Special[\s-]?Needs|SN|Disabl(e|ed)|Autism|Down['\s]?Syndrome)\b
+(?!.*\b(trust|acct|account|estate|planning|will|beneficiary)\b)
+.*?\b(son|daughter|step(son|daughter)|child(ren)?|kid|minor|adopted|foster|grand(child|son|daughter))\b
+|
+\b(son|daughter|child|kid|minor)\b.*?\b(with|who has|diagnosed with|needing)\b.*?\b(Special[\s-]?Needs|disab|autism|chronic condition)\b
+
+
+Demographic Descriptors
+(?i)\b(
+    (African|Asian|Caucasian|Hispanic|Latino|Middle[\s-]?Eastern|Native)\s+
+    (lady|man|men|woman|girl|boy|individual|person|professional|couple|parent|teen|senior) |
+    (BIPOC|POC|Person of Color|Woman of Color) |
+    (young|middle[\s-]?aged|elderly)\s+
+    (mother|father|parent|grandparent) |
+    (LGBTQ?|Queer|Non[\s-]?binary|Trans)\s+
+    (individual|person|youth|adult)
+)\b
+
+
+Legal/Marital Status
+(?i)\b(
+    (Power[\s-]?of[\s-]?Attorney|POA|Guardian|Conservator|Legal[\s-]?Representative) |
+    (Separated|Divorc(ed|ing)|Married|Remarried|Widowed|Common[\s-]?Law|Domestic[\s-]?Partner|Annul(ed|ment)) |
+    (Single\s+(mom|dad|parent|woman|man|father|mother|grandparent)) |
+    (Custody|Alimony|Child[\s-]?Support|Restraining[\s-]?Order)
+)\b
+
+Medical Conditions 
+(?i)\b(
+    (Chronic|Terminal|Severe)\s+
+    (illness|condition|pain|disease|disorder) |
+    Cancer|Tumor|Chemo|Radiation|Diabetes|Hypertension|Stroke|Heart[\s-]?Disease |
+    (Autoimmune|Neurological|Psychiatric|Mental[\s-]?Health)\s+disorder |
+    (Clinical|Major)\s+Depression|Anxiety|PTSD|Bipolar|Schizophrenia |
+    (Recover(y|ing)|Rehabilitation|Physical[\s-]?Therapy) |
+    (Disability|Mobility|Vision|Hearing)\s+(issue|problem|aid) |
+    (COVID|Long[\s-]?COVID|Post[\s-]?Acute[\s-]?Syndrome) |
+    (Transplant|Dialysis|Hospice|Palliative)[\s-]?(care|patient) |
+    (Stage\s+[1-4]|Metastatic|Benign|Malignant)
+)\b
+
+Financial Hardship
+(?i)\b(
+    (Lost|Laid[\s-]?Off|Terminated|Fired)\s+job |
+    (Bad|Poor|Damaged|No|Low)\s+credit |
+    (Debt|Bankruptcy|Foreclosure|Collections|Repossession) |
+    (Unemployment|Underemployment|Reduced[\s-]?Hours) |
+    (Medical|Hospital)\s+bill(s|ing) |
+    (Living|Surviving)\s+on\s+
+        (SSI|SSDI|Disability|Food[\s-]?Stamps|Welfare|Pension) |
+    (Furloughed|Gig[\s-]?Worker|Contractor|Part[\s-]?Time) |
+    (Student[\s-]?Loan|Payday[\s-]?Loan|Debt[\s-]?Consolidation)
+)\b
+
+Credit Improvement Context
+(?i)\b(
+    (Build|Improve|Repair|Rebuild|Establish)\s+
+        (credit|score|history|profile) |
+    (Credit|Score)\s+(is|needs|requires)\s+
+        (low|poor|bad|damaged|limited|nonexistent) |
+    (Increase|Boost|Raise)\s+
+        (credit[\s-]?score|FICO|VantageScore) |
+    (Credit|Debt)\s+(utilization|ratio|limit|line) |
+    (No|Thin|Short)\s+credit[\s-]?history
+)\b
+(?!.*\b(card|loan|mortgage|application|product|offer)\b)
+
+Hospitalization Context 
+(?i)\b(
+    Hospital(ized|ization|izing| stays?) |
+    ER|Emergency[\s-]?Room|ICU|CCU|NICU |
+    (Medical|Surgical|Psychiatric)\s+emergency |
+    (Admitted|Discharged|Outpatient|Inpatient) |
+    (Critical|Serious|Life[\s-]?Threatening)\s+condition |
+    (Ambulance|EMS|Paramedic)\s+transport |
+    (Surgery|Operation|Procedure)\s+complications?
+)\b
+(?!.*\b(employee|staff|doctor|nurse|work|career|job)\b)
+
+
 /(?i)\b(?:(?:(?:\b\b(?:invest(?:ment|ing)(?:s)?|mutual\s*funds?|index\s*funds?|stocks?|bonds?|treasur(?:y|ies)|securit(?:y|ies)|portfolio(?:s)?|ETF(?:s)?|REIT(?:s)?|hedge\s*funds?|private\s*equity|venture\s*capital|commodit(?:y|ies)|derivatives?|options?|futures?|swaps?|CFD(?:s)?|IRA(?:s)?|401\(?k\)?s?|Roth\s*IRAs?|brokerage\s*accounts?|wrap\s*accounts?|separate\s*accounts?|financial\s*planning|wealth\s*management|robo[\s-]*advisors?|annuit(?:y|ies)|CD(?:s)?|certificates?\s*of\s*deposit|unit\s*trusts?|structured\s*products?|cryptocurrenc(?:y|ies)|digital\s*assets?|security\s*tokens?|crowdfunding|tax[\s-]*loss\s*harvesting|estate\s*planning|trust\s*services)\b\b).*?(?:\b\b(?:fiduciary\s*duty|suitability\s*standard|know\s*your\s*client|KYC|anti[\s-]*money\s*laundering|AML|SEC|FINRA|Form\s*ADV|Form\s*CRS|prospectus|disclosure\s*document|ombudsman|regulatory\s*compliance|accredited\s*investor|sophisticated\s*investor|prudent\s*investor|best\s*execution|soft\s*dollars|conflict\s*of\s*interest|custody\s*rule|blue\s*sky\s*laws|volcker\s*rule|margin\s*agreement)\b\b))|(?:(?:\b\b(?:penny\s*stocks?|microcap|OTC\s*securities?|cryptocurrenc(?:y|ies)|binary\s*options?|CFD(?:s)?|forex|foreign\s*exchange|leveraged\s*ET(?:N|F)s?|inverse\s*ET(?:N|F)s?|illiquid\s*securities?|private\s*placements?|special\s*situations|distressed\s*debt)\b\b).*?(?:\b\b(?:past\s*performance|not\s*FDIC\s*insured|no\s*bank\s*guarantee|may\s*lose\s*value|market\s*risk|liquidity\s*risk|inflation\s*risk|interest\s*rate\s*risk|credit\s*risk|counterparty\s*risk|concentration\s*risk|principal\s*risk|leverag(?:e|ing)|speculative|unconstrained|emerging\s*markets?|high[\s-]*yield|junk\s*bonds?|volatil(?:e|ity)|drawdown(?:s)?|maximum\s*adverse\s*excursion)\b\b))|(?:(?:\b\b(?:return(?:s)?\s*on\s*investment|ROI|alpha|beta|sharpe\s*ratio|sortino\s*ratio|standard\s*deviation|volatility|benchmark(?:ing|s)?|outperform(?:ance|ing)?|track\s*record|backtest(?:ed|ing)|compounded\s*return(?:s)?|project(?:ed|ing)\s*return(?:s)?|target(?:ed)?\s*return(?:s)?|yield(?:ing|s)?|dividend(?:s)?|capital\s*gains?|total\s*return|IRR)\b\b).*?(?:\b\b(?:past\s*performance|not\s*FDIC\s*insured|no\s*bank\s*guarantee|may\s*lose\s*value|market\s*risk|liquidity\s*risk|inflation\s*risk|interest\s*rate\s*risk|credit\s*risk|counterparty\s*risk|concentration\s*risk|principal\s*risk|leverag(?:e|ing)|speculative|unconstrained|emerging\s*markets?|high[\s-]*yield|junk\s*bonds?|volatil(?:e|ity)|drawdown(?:s)?|maximum\s*adverse\s*excursion)\b\b))|\b\b(?:invest(?:ment|ing)(?:s)?|mutual\s*funds?|index\s*funds?|stocks?|bonds?|treasur(?:y|ies)|securit(?:y|ies)|portfolio(?:s)?|ETF(?:s)?|REIT(?:s)?|hedge\s*funds?|private\s*equity|venture\s*capital|commodit(?:y|ies)|derivatives?|options?|futures?|swaps?|CFD(?:s)?|IRA(?:s)?|401\(?k\)?s?|Roth\s*IRAs?|brokerage\s*accounts?|wrap\s*accounts?|separate\s*accounts?|financial\s*planning|wealth\s*management|robo[\s-]*advisors?|annuit(?:y|ies)|CD(?:s)?|certificates?\s*of\s*deposit|unit\s*trusts?|structured\s*products?|cryptocurrenc(?:y|ies)|digital\s*assets?|security\s*tokens?|crowdfunding|tax[\s-]*loss\s*harvesting|estate\s*planning|trust\s*services)\b\b|\b\b(?:recommend(?:ing|ed|s)?|suggest(?:ing|ed|s)?|advise(?:ing|d|s)?|endorse(?:ing|d|s)?|guarantee(?:ing|d|s)?|promis(?:e|ing|ed)|assur(?:e|ing|ed)|project(?:ing|ed)|target(?:ing|ed)|forecast(?:ing|ed)|outperform(?:ing|ed)|beat\s*the\s*market)\b\b|\b\b(?:fiduciary\s*duty|suitability\s*standard|know\s*your\s*client|KYC|anti[\s-]*money\s*laundering|AML|SEC|FINRA|Form\s*ADV|Form\s*CRS|prospectus|disclosure\s*document|ombudsman|regulatory\s*compliance|accredited\s*investor|sophisticated\s*investor|prudent\s*investor|best\s*execution|soft\s*dollars|conflict\s*of\s*interest|custody\s*rule|blue\s*sky\s*laws|volcker\s*rule|margin\s*agreement)\b\b|\b\b(?:return(?:s)?\s*on\s*investment|ROI|alpha|beta|sharpe\s*ratio|sortino\s*ratio|standard\s*deviation|volatility|benchmark(?:ing|s)?|outperform(?:ance|ing)?|track\s*record|backtest(?:ed|ing)|compounded\s*return(?:s)?|project(?:ed|ing)\s*return(?:s)?|target(?:ed)?\s*return(?:s)?|yield(?:ing|s)?|dividend(?:s)?|capital\s*gains?|total\s*return|IRR)\b\b|\b\b(?:past\s*performance|not\s*FDIC\s*insured|no\s*bank\s*guarantee|may\s*lose\s*value|market\s*risk|liquidity\s*risk|inflation\s*risk|interest\s*rate\s*risk|credit\s*risk|counterparty\s*risk|concentration\s*risk|principal\s*risk|leverag(?:e|ing)|speculative|unconstrained|emerging\s*markets?|high[\s-]*yield|junk\s*bonds?|volatil(?:e|ity)|drawdown(?:s)?|maximum\s*adverse\s*excursion)\b\b|\b\b(?:penny\s*stocks?|microcap|OTC\s*securities?|cryptocurrenc(?:y|ies)|binary\s*options?|CFD(?:s)?|forex|foreign\s*exchange|leveraged\s*ET(?:N|F)s?|inverse\s*ET(?:N|F)s?|illiquid\s*securities?|private\s*placements?|special\s*situations|distressed\s*debt)\b\b)\b/
 
 
