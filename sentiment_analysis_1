@@ -1,0 +1,124 @@
+import pandas as pd
+import re
+from nltk.sentiment import SentimentIntensityAnalyzer
+from nltk.tokenize import word_tokenize, sent_tokenize
+import nltk
+from nltk.corpus import stopwords
+import itertools
+
+# Initialize NLTK resources
+nltk.download(['vader_lexicon', 'punkt', 'stopwords'])
+
+class EmailSentimentAnalyzer:
+    def __init__(self):
+        self.sia = SentimentIntensityAnalyzer()
+        self.stop_words = set(stopwords.words('english'))
+        self.negative_lexicon = self._load_negative_lexicon()
+        self.custom_phrases = self._load_custom_phrases()
+        
+    def _load_negative_lexicon(self):
+        """Extract negative words from Vader lexicon"""
+        return {word for word, value in self.sia.lexicon.items() if value < 0}
+    
+    def _load_custom_phrases(self, phrase_file='custom_negative_phrases.txt'):
+        """Load custom negative phrases from file"""
+        custom_phrases = {
+            'poor service', 'not satisfied', 'never again',
+            'terrible experience', 'worst ever', 'waste of money'
+        }
+        try:
+            with open(phrase_file, 'r') as f:
+                custom_phrases.update(line.strip().lower() for line in f)
+        except FileNotFoundError:
+            pass
+        return custom_phrases
+    
+    def _preprocess_text(self, text):
+        """Clean text while preserving negation context"""
+        text = text.lower()
+        text = re.sub(r'[^a-zA-Z0-9\s\']', '', text)  # Keep apostrophes
+        return text
+    
+    def _get_ngrams(self, text, n=2):
+        """Generate n-grams from text"""
+        tokens = word_tokenize(text)
+        return [' '.join(tokens[i:i+n]) for i in range(len(tokens)-n+1)]
+    
+    def _find_negative_terms(self, text):
+        """Identify negative words and phrases"""
+        text = self._preprocess_text(text)
+        negative_terms = set()
+        
+        # Check single words
+        for word in word_tokenize(text):
+            if word in self.negative_lexicon:
+                negative_terms.add(word)
+        
+        # Check custom phrases
+        for n in [2, 3]:  # Bigrams and trigrams
+            for ngram in self._get_ngrams(text, n):
+                if ngram in self.custom_phrases:
+                    negative_terms.add(ngram)
+        
+        # Find negative patterns
+        negation_patterns = [
+            r'\b(not|never|no)\s+\w+',
+            r'\b(awful|horrible|terrible|worst)\b',
+            r'\b(poor|bad|low)\s+\w+'
+        ]
+        
+        for pattern in negation_patterns:
+            matches = re.findall(pattern, text)
+            negative_terms.update(matches)
+            
+        return list(negative_terms)
+    
+    def analyze_emails(self, emails):
+        """Analyze list of email bodies"""
+        results = []
+        
+        for email in emails:
+            # Get sentiment scores
+            sentiment = self.sia.polarity_scores(email)
+            
+            # Find negative terms
+            negative_terms = self._find_negative_terms(email)
+            
+            results.append({
+                'email_body': email,
+                'negative_score': sentiment['neg'],
+                'neutral_score': sentiment['neu'],
+                'positive_score': sentiment['pos'],
+                'compound_score': sentiment['compound'],
+                'negative_terms': negative_terms
+            })
+            
+        return pd.DataFrame(results).sort_values('compound_score')
+
+# Example Usage
+if __name__ == "__main__":
+    # Sample email dataset
+    emails = [
+        """Dear Support Team,
+        I'm extremely disappointed with the recent service. The product arrived damaged and your customer service was unresponsive. This is the worst experience I've ever had with any company!""",
+        
+        """Hello Customer Service,
+        I wanted to compliment your staff on the excellent support I received yesterday. The issue was resolved quickly and professionally.""",
+        
+        """To Whom It May Concern,
+        The billing statement contains several errors, and I'm not satisfied with the explanation provided. This poor service needs immediate attention."""
+    ]
+    
+    # Initialize analyzer
+    analyzer = EmailSentimentAnalyzer()
+    
+    # Analyze emails
+    results = analyzer.analyze_emails(emails)
+    
+    # Display results
+    pd.set_option('display.max_colwidth', 100)
+    print("Email Sentiment Analysis Results:")
+    print(results[['email_body', 'compound_score', 'negative_terms']])
+    
+    # Save to CSV
+    results.to_csv('email_sentiment_analysis.csv', index=False)
