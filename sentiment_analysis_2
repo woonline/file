@@ -1,0 +1,83 @@
+import nltk
+import re
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
+# Download the VADER lexicon if you haven't already
+nltk.download('vader_lexicon')
+nltk.download('punkt')
+
+def extract_negative_phrases(text, analyzer):
+    """
+    Tokenizes the text and returns a list of words or short phrases that have negative sentiment.
+    Consecutive negative words are combined into phrases.
+    """
+    # Tokenize text using nltk
+    tokens = nltk.word_tokenize(text)
+    
+    negative_phrases = []
+    current_phrase = []
+    
+    for token in tokens:
+        # Clean token for comparison (lowercase, remove punctuation)
+        word = re.sub(r'\W+', '', token).lower()
+        if not word:
+            continue
+        
+        # Check if word exists in VADER's lexicon and if its sentiment weight is negative
+        lexicon_score = analyzer.lexicon.get(word)
+        if lexicon_score is not None and lexicon_score < 0:
+            current_phrase.append(token)
+        else:
+            if current_phrase:
+                # Join consecutive negative tokens to form a phrase and add it to the list
+                negative_phrases.append(" ".join(current_phrase))
+                current_phrase = []
+    # Add any remaining phrase
+    if current_phrase:
+        negative_phrases.append(" ".join(current_phrase))
+        
+    return negative_phrases
+
+def analyze_emails(email_bodies):
+    analyzer = SentimentIntensityAnalyzer()
+    results = []
+    
+    for email in email_bodies:
+        # Compute sentiment scores for the entire email body
+        sentiment_scores = analyzer.polarity_scores(email)
+        
+        # Extract negative words/phrases from the email body
+        negative_phrases = extract_negative_phrases(email, analyzer)
+        
+        result = {
+            'email_body': email,
+            'sentiment_scores': sentiment_scores,
+            'negative_phrases': negative_phrases
+        }
+        results.append(result)
+    return results
+
+# Sample email bodies
+emails = [
+    "I am really disappointed with the service. The product quality was poor and unacceptable.",
+    "Thank you for your help. I am satisfied with the quick response and friendly support!",
+    "The meeting was terrible and the atmosphere was gloomy. Nothing went as planned."
+]
+
+results = analyze_emails(emails)
+
+# Output the results
+for idx, res in enumerate(results, 1):
+    print(f"Email #{idx}:")
+    print("Email Body:")
+    print(res['email_body'])
+    print("\nSentiment Scores:")
+    for k, v in res['sentiment_scores'].items():
+        print(f"  {k}: {v}")
+    print("\nNegative Words/Phrases:")
+    if res['negative_phrases']:
+        for phrase in res['negative_phrases']:
+            print(f"  - {phrase}")
+    else:
+        print("  None found.")
+    print("-" * 50)
