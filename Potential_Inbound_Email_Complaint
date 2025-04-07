@@ -34,129 +34,97 @@ Simple, transparent baseline for future AI/ML models.
 Easily adjustable rules based on feedback.
 
 Slide 4: 6-Week Data Snapshot
+Slide 4: 6-Week Data Snapshot
+Objective: Share raw results of lexicon-based flagging for research team validation.
+
 Key Metrics:
 
-Total Emails Analyzed: 5,000
+Total Inbound Emails: [X] (e.g., 5,000)
 
-Flagged as Potential Complaints: 750 (15%)
+Flagged as Potential Complaints: [Y] (e.g., 750 | 15% of total)
 
-Top Complaint Categories:
+Breakdown of Flagged Emails by Category:
 
-Billing Issues: 40%
+Billing Issues: [A%]
 
-Product Defects: 30%
+Product Defects: [B%]
 
-Service Delays: 20%
+Service Delays: [C%]
 
-Other: 10%
+Other: [D%]
 
-Accuracy Metrics (Sampled):
+Visual:
 
-Precision: 70% (70% of flagged emails were actual complaints).
+Bar Chart 1: Total emails vs. flagged complaints.
 
-Recall: 65% (35% of true complaints missed by lexicon).
+Pie Chart: Distribution of complaint categories.
 
-False Positives: 30% (e.g., “I had a problem scheduling a call” ≠ complaint).
+Key Observations:
 
-Visual: Bar chart comparing flagged vs. actual complaints.
+Lexon rules flagged 15% of total emails as potential complaints.
 
-Slide 5: Validation Process with Research Team
-Objective:
+Top category: Billing Issues (40% of flagged emails).
 
-Compare lexicon-flagged emails with complaints already logged in the system.
+Slide 5: Next Steps – Research Team Validation & Feedback
+Objective: Validate flagged emails against system-logged complaints and refine lexicon rules.
 
-Identify gaps (false positives/negatives) to refine rules.
+Process:
 
-Steps for Validation:
+Data Handoff to Research Team:
 
-Data Matching:
+Provide 6 weeks of flagged emails (750) with metadata (date, sender, keywords).
 
-Research team cross-references flagged emails (750) with system-submitted complaints.
+Share system complaint logs for the same period.
 
-Example: If 500 complaints were logged in the system, how many overlapped with lexicon results?
+Validation Tasks for Research Team:
 
-Root-Cause Analysis:
+Step 1: Compare flagged emails with system-logged complaints.
 
-Why were some complaints missed? (e.g., lexicon gaps, ambiguous language).
+Are flagged emails actually complaints?
 
-Why were non-complaints flagged? (e.g., keyword misuse).
+Are system-logged complaints missed by the lexicon?
 
-Actionable Feedback:
+Step 2: Categorize discrepancies:
 
-Update lexicon with new keywords (e.g., “escalate,” “compensation”).
+False Positives: Flagged emails that are not complaints (e.g., “problem” used neutrally).
 
-Add context rules (e.g., “problem” + “refund” = complaint).
+False Negatives: Complaints in the system not flagged by the lexicon.
 
-Slide 6: Sample Discrepancies Identified
-Case 1: False Negative
+Feedback Sessions:
 
-Email: “Your service is unacceptable. I need a resolution ASAP.”
+Joint workshops to review findings.
 
-Missed Reason: “Unacceptable” not in lexicon.
+Refine lexicon rules to:
 
-Case 2: False Positive
+Reduce False Positives: Remove/contextualize ambiguous keywords.
 
-Email: “I had a problem scheduling a demo, but it’s resolved now.”
+Improve Coverage: Add missing complaint phrases (e.g., “escalate,” “compensation”).
 
-Flagged Reason: Keyword “problem” triggered false alert.
+Expected Outcomes:
 
-Visual: Side-by-side email snippets with annotations.
+Sharper Lexicon Rules: Reduce alert volume by [X%].
 
-Slide 7: Next Steps for Validation
-Handoff to Research Team:
-
-Deliver flagged email dataset (750) with metadata (date, sender, category).
-
-Provide access to system complaint logs for comparison.
-
-Collaboration Framework:
-
-Weekly syncs to review discrepancies.
-
-Joint refinement of lexicon rules based on findings.
+Actionable Insights: Prioritize high-impact complaint categories (e.g., billing).
 
 Timeline:
 
-Week 1: Data transfer and alignment.
+Week 1: Data handoff and alignment.
 
-Week 2-3: Analysis and feedback sessions.
+Week 2-3: Research team analysis.
 
-Week 4: Finalize updated lexicon rules.
+Week 4: Feedback and rule refinement.
 
-Slide 8: Expected Outcomes Post-Validation
-Improved Precision/Recall: Target ≥85% precision, ≥80% recall.
+Visual:
 
-Actionable Insights:
+Process Flow Diagram: Data handoff → validation → feedback → refinement.
 
-Identify recurring complaint themes for proactive resolution.
+Example Snippets: Show 1–2 anonymized false positive/negative emails.
 
-Refine keyword list to reduce manual triage effort.
+Key Adjustments Based on Your Feedback:
+Slide 4 now purely focuses on volumes and categories (no precision/recall metrics).
 
-Foundation for Automation: Prep for integration with AI tools (e.g., sentiment analysis).
+Slide 5 emphasizes the collaboration with the research team, framing validation as the critical next step to refine rules and reduce noise.
 
-Slide 9: Roadmap
-Phase 1 (Done): Lexicon development & 6-week analysis.
+Added concrete examples of how false positives/negatives will be addressed.
 
-Phase 2 (Now): Research team validation (4 weeks).
-
-Phase 3 (Next): Pilot refined rules + measure impact.
-
-Visual: Timeline graphic with milestones.
-
-Slide 10: Q&A
-Open the floor for questions.
-Contact: [Your Details]
-
-Design Tips:
-Use comparative visuals:
-
-Venn diagram showing overlap between lexicon-flagged and system-logged complaints.
-
-Heatmap of top complaint categories.
-
-Include before/after examples of lexicon improvements.
-
-Add icons for collaboration (e.g., handshake for teamwork, magnifying glass for analysis).
-
-This structure ensures stakeholders understand the purpose of the 6-week data, how the research team will validate it, and the long-term value of refining the strategy. Let me know if you need help creating specific visuals or expanding sections!
-
+Let me know if you’d like to tweak the visuals or expand on specific sections!
