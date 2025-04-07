@@ -128,3 +128,90 @@ Slide 5 emphasizes the collaboration with the research team, framing validation 
 Added concrete examples of how false positives/negatives will be addressed.
 
 Let me know if you’d like to tweak the visuals or expand on specific sections!
+
+
+
+Lexicon-Based Complaint Identification: A Simple Explanation
+Lexicon-based complaint identification is a rule-driven method to automatically detect potential complaints in text (like emails) using a predefined list of keywords, phrases, or sentiment markers (a "lexicon"). It’s like creating a "filter" to catch emails that might contain complaints based on specific words or patterns.
+
+How It Works
+Build a Lexicon (Keyword List):
+
+Curate a list of words/phrases commonly associated with complaints (e.g., “refund,” “broken,” “unhappy,” “not working”).
+
+Example:
+
+High-priority terms: "demand a refund," "terrible service"
+
+Medium-priority terms: "issue," "disappointed"
+
+Scan Inbound Emails:
+
+Automatically flag emails that contain ≥1 high-priority term or ≥2 medium-priority terms.
+
+Tag and Export:
+
+Emails meeting the criteria are tagged as “potential complaints” and compiled for further review.
+
+Why Use a Lexicon-Based Approach?
+Simplicity: Easy to set up and explain (no complex AI models).
+
+Transparency: Rules are clear and adjustable (e.g., add/remove keywords).
+
+Baseline for Improvement: Provides a starting point to later train AI/ML models.
+
+Speed: Processes large email volumes quickly.
+
+Example in Action
+Email 1:
+“My order arrived broken. I demand a refund immediately!”
+
+Triggered Keywords: “broken,” “demand a refund”
+
+Result: Flagged as a complaint.
+
+Email 2:
+“I had a problem logging in, but it’s fixed now.”
+
+Triggered Keyword: “problem”
+
+Result: Flagged as a false positive (not a complaint).
+
+Limitations & Challenges
+False Positives:
+
+Non-complaint emails with keywords (e.g., “I had a problem scheduling a call” ≠ complaint).
+
+False Negatives:
+
+Complaints that lack lexicon terms (e.g., “This is unacceptable”).
+
+Context Ignored:
+
+Sarcasm, slang, or nuanced language may be missed.
+
+How Validation by the Research Team Helps
+The 6-week flagged email data will be cross-checked by the research team to:
+
+Identify Gaps:
+
+“Why did the lexicon miss this complaint?” → Add missing keywords.
+
+Reduce Noise:
+
+“Why was this email falsely flagged?” → Remove ambiguous terms.
+
+Refine Rules:
+
+Combine keywords with context (e.g., “problem” + “refund” = complaint).
+
+Key Takeaway
+Lexicon-based identification is a foundational step to:
+
+Quickly filter potential complaints at scale.
+
+Generate data for deeper analysis and future automation (e.g., AI).
+
+Prioritize improvements based on real-world feedback.
+
+Let me know if you’d like to add examples or tailor this further for your audience! 🚀
