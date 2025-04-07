@@ -1,0 +1,162 @@
+Slide 1: Title Slide
+Title: Lexicon-Based Complaint Identification: Initial Results & Validation Pathway
+Subtitle: 6-Week Data Analysis for Research Team Review
+Team Name | Date
+
+Slide 2: Agenda
+Lexicon Strategy Overview
+
+6-Week Data Insights
+
+Validation Process with Research Team
+
+Next Steps & Timeline
+
+Slide 3: Lexicon Strategy Overview
+Objective:
+
+Automatically flag potential complaint emails using predefined keywords/sentiment rules (e.g., “refund,” “broken,” “unacceptable”).
+
+Generate a dataset for research team validation against system-logged complaints.
+
+Methodology:
+
+Lexicon Development: Curated list of 100+ complaint-related keywords/phrases.
+
+Rule-Based Filtering: Emails tagged if they contain ≥1 high-priority keyword or ≥2 medium-priority keywords.
+
+Data Export: Flagged emails compiled for research team analysis.
+
+Why Lexicon First?
+
+Simple, transparent baseline for future AI/ML models.
+
+Easily adjustable rules based on feedback.
+
+Slide 4: 6-Week Data Snapshot
+Key Metrics:
+
+Total Emails Analyzed: 5,000
+
+Flagged as Potential Complaints: 750 (15%)
+
+Top Complaint Categories:
+
+Billing Issues: 40%
+
+Product Defects: 30%
+
+Service Delays: 20%
+
+Other: 10%
+
+Accuracy Metrics (Sampled):
+
+Precision: 70% (70% of flagged emails were actual complaints).
+
+Recall: 65% (35% of true complaints missed by lexicon).
+
+False Positives: 30% (e.g., “I had a problem scheduling a call” ≠ complaint).
+
+Visual: Bar chart comparing flagged vs. actual complaints.
+
+Slide 5: Validation Process with Research Team
+Objective:
+
+Compare lexicon-flagged emails with complaints already logged in the system.
+
+Identify gaps (false positives/negatives) to refine rules.
+
+Steps for Validation:
+
+Data Matching:
+
+Research team cross-references flagged emails (750) with system-submitted complaints.
+
+Example: If 500 complaints were logged in the system, how many overlapped with lexicon results?
+
+Root-Cause Analysis:
+
+Why were some complaints missed? (e.g., lexicon gaps, ambiguous language).
+
+Why were non-complaints flagged? (e.g., keyword misuse).
+
+Actionable Feedback:
+
+Update lexicon with new keywords (e.g., “escalate,” “compensation”).
+
+Add context rules (e.g., “problem” + “refund” = complaint).
+
+Slide 6: Sample Discrepancies Identified
+Case 1: False Negative
+
+Email: “Your service is unacceptable. I need a resolution ASAP.”
+
+Missed Reason: “Unacceptable” not in lexicon.
+
+Case 2: False Positive
+
+Email: “I had a problem scheduling a demo, but it’s resolved now.”
+
+Flagged Reason: Keyword “problem” triggered false alert.
+
+Visual: Side-by-side email snippets with annotations.
+
+Slide 7: Next Steps for Validation
+Handoff to Research Team:
+
+Deliver flagged email dataset (750) with metadata (date, sender, category).
+
+Provide access to system complaint logs for comparison.
+
+Collaboration Framework:
+
+Weekly syncs to review discrepancies.
+
+Joint refinement of lexicon rules based on findings.
+
+Timeline:
+
+Week 1: Data transfer and alignment.
+
+Week 2-3: Analysis and feedback sessions.
+
+Week 4: Finalize updated lexicon rules.
+
+Slide 8: Expected Outcomes Post-Validation
+Improved Precision/Recall: Target ≥85% precision, ≥80% recall.
+
+Actionable Insights:
+
+Identify recurring complaint themes for proactive resolution.
+
+Refine keyword list to reduce manual triage effort.
+
+Foundation for Automation: Prep for integration with AI tools (e.g., sentiment analysis).
+
+Slide 9: Roadmap
+Phase 1 (Done): Lexicon development & 6-week analysis.
+
+Phase 2 (Now): Research team validation (4 weeks).
+
+Phase 3 (Next): Pilot refined rules + measure impact.
+
+Visual: Timeline graphic with milestones.
+
+Slide 10: Q&A
+Open the floor for questions.
+Contact: [Your Details]
+
+Design Tips:
+Use comparative visuals:
+
+Venn diagram showing overlap between lexicon-flagged and system-logged complaints.
+
+Heatmap of top complaint categories.
+
+Include before/after examples of lexicon improvements.
+
+Add icons for collaboration (e.g., handshake for teamwork, magnifying glass for analysis).
+
+This structure ensures stakeholders understand the purpose of the 6-week data, how the research team will validate it, and the long-term value of refining the strategy. Let me know if you need help creating specific visuals or expanding sections!
+
